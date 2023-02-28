@@ -6,6 +6,8 @@ import android.os.Looper;
 import com.example.cinecollect.helpers.FilmHelper;
 import com.example.cinecollect.interfaces.FilmChangeListener;
 import com.example.cinecollect.pojo.Film;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -13,9 +15,9 @@ import java.util.concurrent.Executors;
 
 public class RetrieveFilmsExecutor {
 
-    private ExecutorService mExecutorService;
-    private Handler mHandler;
-    private FilmChangeListener mListener;
+    private final ExecutorService mExecutorService;
+    private final Handler mHandler;
+    private final FilmChangeListener mListener;
 
     public RetrieveFilmsExecutor(FilmChangeListener listener) {
         mExecutorService = Executors.newSingleThreadExecutor();
@@ -23,11 +25,20 @@ public class RetrieveFilmsExecutor {
         mListener = listener;
     }
 
-    public void getFilmsOfUser(String username) {
-        mExecutorService.execute(() -> {
-            List<Film> films = FilmHelper.getFilmsOfUser(username);
-        });
+    public void getUserFilms(String uid) {
         // TODO:
-        // Get lists of given user, here you use http clients etc
+        // Handle exception correctly
+        mExecutorService.execute(() -> {
+            try {
+                List<Film> films = FilmHelper.getInstance().getUserFilms(uid);
+                if (films != null) {
+                    mHandler.post(() -> {
+                        mListener.onFilmRetrieved(films);
+                    });
+                }
+            } catch (FirebaseAuthInvalidUserException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

@@ -21,9 +21,10 @@ public class UserFilmListActivity extends AppCompatActivity {
         if (intent != null) {
             final Bundle extras = intent.getExtras();
             if (extras != null) {
-                final String login = extras.getString(Constants.Login.EXTRA_LOGIN);
-                getSupportActionBar().setSubtitle(login);
-                getSupportFragmentManager().beginTransaction().add(R.id.container, new FilmFragment()).commit();
+                final String username = extras.getString(Constants.Login.EXTRA_USERNAME);
+                final String uid = extras.getString(Constants.Login.EXTRA_UID);
+                getSupportActionBar().setSubtitle(username);
+                getSupportFragmentManager().beginTransaction().add(R.id.container, FilmFragment.newInstance(uid)).commit();
             }
         }
     }
