@@ -2,7 +2,6 @@ package com.example.cinecollect.helpers;
 
 import android.util.Log;
 
-import com.example.cinecollect.client.FirebaseDatabaseAuthInterceptor;
 import com.example.cinecollect.interfaces.FirebaseDatabaseService;
 import com.example.cinecollect.pojo.Film;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,17 +29,13 @@ public class FilmHelper {
     private static FilmHelper filmHelper;
 
     private final String userToken;
-    private final FirebaseDatabaseAuthInterceptor authInterceptor;
-    private final OkHttpClient client;
     private final String baseUrl = "https://cinecollect-d0d0c-default-rtdb.europe-west1.firebasedatabase.app/";
     private final Retrofit retrofit;
     private final FirebaseDatabaseService service;
 
     private FilmHelper(String userToken) {
         this.userToken = userToken;
-        this.authInterceptor = new FirebaseDatabaseAuthInterceptor(userToken);
-        this.client = new OkHttpClient.Builder().addInterceptor(this.authInterceptor).build();
-        this.retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(GsonConverterFactory.create()).client(client).build();
+        this.retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(GsonConverterFactory.create()).build();
         this.service = retrofit.create(FirebaseDatabaseService.class);
     }
 
