@@ -27,7 +27,10 @@
         </activity>
         <activity
             android:name=".AuthenticationActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
+        <activity
+            android:name=".UserFilmListActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

@@ -27,7 +27,7 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_item_list_film, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_item, parent, false);
         return new ViewHolder(view);
     }
 
@@ -37,6 +37,8 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
 
         // TODO:
         // Assign corresponding fields of holder.
+        holder.number.setText(holder.mItem.title);
+        holder.content.setText(holder.mItem.director);
     }
 
     @Override
@@ -45,6 +47,8 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        public final TextView number;
+        public final TextView content;
         public Film mItem;
 //        TODO:
 //        Design the fragment_item.xml with these:
@@ -61,6 +65,9 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
 
             // TODO:
             // Bind views here
+            // for the time being number and content
+            number = binding.findViewById(R.id.item_number);
+            content =  binding.findViewById(R.id.content);
         }
 
         @Override

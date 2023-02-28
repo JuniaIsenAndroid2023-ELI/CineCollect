@@ -14,8 +14,11 @@ import android.view.ViewGroup;
 
 import com.example.cinecollect.R;
 import com.example.cinecollect.executor.RetrieveFilmsExecutor;
+import com.example.cinecollect.helpers.UserHelper;
 import com.example.cinecollect.interfaces.FilmChangeListener;
 import com.example.cinecollect.pojo.Film;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +30,10 @@ public class FilmFragment extends Fragment implements FilmChangeListener {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
+    private static final String ARG_UID = "uid";
     // TODO: Customize parameters
     private int mColumnCount = 1;
+    private String mUid;
     private RetrieveFilmsExecutor mExecutor;
     private RecyclerView mRecyclerView;
 
@@ -43,12 +48,10 @@ public class FilmFragment extends Fragment implements FilmChangeListener {
     public void onStart() {
         super.onStart();
 
-//        TODO:
-//        Somehow get the username of the wanted user's to get their list of films
-//        if (username != null) {
-//            mExecutor = new RetrieveFilmsExecutor(this);
-//            mExecutor.getFilmsOfUser(username);
-//        }
+        if (mUid != null && UserHelper.getInstance().getUserHasFilms(mUid)) {
+            mExecutor = new RetrieveFilmsExecutor(this);
+            mExecutor.getUserFilms(mUid);
+        }
     }
 
     // TODO: Customize parameter initialization
@@ -61,12 +64,25 @@ public class FilmFragment extends Fragment implements FilmChangeListener {
         return fragment;
     }
 
+    // TODO: Customize parameter initialization
+    @SuppressWarnings("unused")
+    public static FilmFragment newInstance(String uid) {
+        FilmFragment fragment = new FilmFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_UID, uid);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+        Bundle arguments = getArguments();
+
+        if (arguments != null) {
+//            mColumnCount = arguments.getInt(ARG_COLUMN_COUNT);
+            mUid = arguments.getString(ARG_UID);
         }
     }
 
@@ -80,13 +96,13 @@ public class FilmFragment extends Fragment implements FilmChangeListener {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            mRecyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+                mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+                mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyFilmRecyclerViewAdapter(new ArrayList<>()));
+            mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(new ArrayList<>()));
         }
         return view;
     }
