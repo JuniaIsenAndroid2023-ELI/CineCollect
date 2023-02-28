@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -11,15 +12,19 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.cinecollect.executor.AddUserFilmExecutor;
 import com.example.cinecollect.helpers.UserHelper;
+import com.example.cinecollect.listeners.AddUserFilmListener;
 import com.example.cinecollect.pojo.CineCollectUser;
+import com.example.cinecollect.pojo.Film;
+import com.example.cinecollect.pojo.UserFilm;
 import com.example.cinecollect.util.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 
-public class AuthenticationActivity extends AppCompatActivity {
+public class AuthenticationActivity extends AppCompatActivity implements AddUserFilmListener {
 
     private FirebaseAuth mAuth;
     private EditText mEmailEditText;
@@ -101,8 +106,12 @@ public class AuthenticationActivity extends AppCompatActivity {
                             Toast.makeText(AuthenticationActivity.this, "Please verify your email", Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            UserHelper.getInstance().addUserFilm(user.getUid(), "randomFilmId");
-                            UserHelper.getInstance().updateUser(user.getUid(), CineCollectUser.newBuilder().setEmailVerified(true).build());
+                            Film film = new Film();
+                            film.title = "The Pursuit of Happyness";
+                            film.description = "Gotta watch it man.";
+                            AddUserFilmExecutor executor = new AddUserFilmExecutor(this);
+                            executor.addUserFilm(user.getUid(), "id1", film);
+                            UserHelper.getInstance().setUserEmailVerified(user.getUid());
                             Toast.makeText(AuthenticationActivity.this, "Welcome back!", Toast.LENGTH_SHORT).show();
                             startActivity(getIntent(user.getEmail(), user.getUid()));
                         }
@@ -135,8 +144,6 @@ public class AuthenticationActivity extends AppCompatActivity {
                                                 .setUsername(email.substring(0, email.indexOf("@")))
                                                 .build()
                         );
-
-                        UserHelper.getInstance().addUserFilm(user.getUid(), "randomFilmId");
                     } else {
                         // If sign up fails, display a message to the user.
                         Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -184,5 +191,10 @@ public class AuthenticationActivity extends AppCompatActivity {
                         Toast.makeText(AuthenticationActivity.this, "A password reset email is sent", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    @Override
+    public void onAddUserFilm() {
+
     }
 }

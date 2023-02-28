@@ -1,17 +1,15 @@
 package com.example.cinecollect.helpers;
 
-import com.example.cinecollect.client.FirebaseDatabaseAuthInterceptor;
-import com.example.cinecollect.interfaces.FirebaseDatabaseService;
+import com.example.cinecollect.pojo.Film;
+import com.example.cinecollect.services.FirebaseDatabaseService;
 import com.example.cinecollect.pojo.CineCollectUser;
+import com.example.cinecollect.pojo.UserFilm;
+import com.example.cinecollect.util.HelperExceptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,7 +36,7 @@ public class UserHelper {
         FirebaseUser _currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (_currentUser == null) {
-            throw new NoCurrentUserException();
+            throw new HelperExceptions.NoCurrentUserException();
         }
 
         if (currentUser != _currentUser || userHelper == null) {
@@ -63,57 +61,68 @@ public class UserHelper {
         });
     }
 
-    public void updateUser(String userId, CineCollectUser user) {
+    private void updateUser(String userId, CineCollectUser user) {
         service.updateUser(userId, userToken, user).enqueue(new Callback<CineCollectUser>() {
             @Override
             public void onResponse(Call<CineCollectUser> call, Response<CineCollectUser> response) {
-                System.out.println("done!");
             }
 
             @Override
             public void onFailure(Call<CineCollectUser> call, Throwable t) {
-                System.out.println("failure");
             }
         });
+    }
+
+    public void setUserEmailVerified(String userId) {
+        updateUser(userId, CineCollectUser.newBuilder().setEmailVerified(true).build());
     }
 
     public Boolean getUserHasFilms(String userId) {
         // TODO:
         // Handle exception better, also check null return, and not successfull
-        Boolean result = false;
-        service.getUserHasFilms(userId, userToken).enqueue(new Callback<Boolean>() {
-            @Override
-            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+        try {
+            Response<Boolean> response = service.getUserHasFilms(userId, userToken).execute();
+            if (response.isSuccessful()) {
+                return response.body();
+            }
+            else {
                 // TODO
             }
-
-            @Override
-            public void onFailure(Call<Boolean> call, Throwable t) {
-
-            }
-        });
-        return result;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public void addUserFilm(String userId, String filmId) {
+    public void addUserFilm(String userId, String filmId, Film film) {
         // TODO:
         // Handle exception better, also check null return, and not successfull
-        Map<String, Object> h = new HashMap<>();
-        h.put("a", "b");
-        service.addUserFilm(userId, filmId, userToken, h).enqueue(new Callback<Map<String, Object>>() {
-            @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-
+        try {
+            Response<Film> response = service.addUserFilm(userId, filmId, userToken, film).execute();
+            if (response.isSuccessful()) {
+                service.updateUser(userId, userToken, CineCollectUser.newBuilder().setHasFilms(true).build()).execute();
             }
-
-            @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-
+            else {
+                // TODO
             }
-        });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private static class NoCurrentUserException extends RuntimeException {
-
+    public void updateUserFilm(String userId, String filmId, Film film) {
+        // TODO:
+        // Handle exception better, also check null return, and not successfull
+        try {
+            Response<Film> response = service.updateUserFilm(userId, filmId, userToken, film).execute();
+            if (response.isSuccessful()) {
+                service.updateUser(userId, userToken, CineCollectUser.newBuilder().setHasFilms(true).build()).execute();
+            }
+            else {
+                // TODO
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

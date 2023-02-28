@@ -13,12 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.cinecollect.R;
-import com.example.cinecollect.executor.RetrieveFilmsExecutor;
-import com.example.cinecollect.helpers.UserHelper;
-import com.example.cinecollect.interfaces.FilmChangeListener;
+import com.example.cinecollect.executor.GetUserFilmsExecutor;
+import com.example.cinecollect.executor.GetUserHasFilmsExecutor;
+import com.example.cinecollect.listeners.GetUserFilmsListener;
+import com.example.cinecollect.listeners.GetUserHasFilmsListener;
 import com.example.cinecollect.pojo.Film;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,31 +26,29 @@ import java.util.List;
 /**
  * A fragment representing a list of Items.
  */
-public class FilmFragment extends Fragment implements FilmChangeListener {
+public class FilmFragment extends Fragment implements GetUserFilmsListener, GetUserHasFilmsListener {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String ARG_UID = "uid";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private String mUid;
-    private RetrieveFilmsExecutor mExecutor;
+    private String ownerUserId;
     private RecyclerView mRecyclerView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public FilmFragment() {
-    }
+    public FilmFragment() {}
 
     @Override
     public void onStart() {
         super.onStart();
 
-        if (mUid != null && UserHelper.getInstance().getUserHasFilms(mUid)) {
-            mExecutor = new RetrieveFilmsExecutor(this);
-            mExecutor.getUserFilms(mUid);
+        if (ownerUserId != null) {
+            GetUserHasFilmsExecutor executor = new GetUserHasFilmsExecutor(this);
+            executor.getUserHasFilms(ownerUserId);
         }
     }
 
@@ -81,8 +79,7 @@ public class FilmFragment extends Fragment implements FilmChangeListener {
         Bundle arguments = getArguments();
 
         if (arguments != null) {
-//            mColumnCount = arguments.getInt(ARG_COLUMN_COUNT);
-            mUid = arguments.getString(ARG_UID);
+            ownerUserId = arguments.getString(ARG_UID);
         }
     }
 
@@ -102,13 +99,21 @@ public class FilmFragment extends Fragment implements FilmChangeListener {
             } else {
                 mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(new ArrayList<>()));
+            mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(new ArrayList<>(), ownerUserId, FirebaseAuth.getInstance().getCurrentUser().getUid()));
         }
         return view;
     }
 
     @Override
-    public void onFilmRetrieved(List<Film> films) {
-        mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(films));
+    public void onGetUserFilms(List<Film> films) {
+        mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(films, ownerUserId, FirebaseAuth.getInstance().getCurrentUser().getUid()));
+    }
+
+    @Override
+    public void onGetUserHasFilms(Boolean userHasFilms) {
+        if (userHasFilms) {
+            GetUserFilmsExecutor executor = new GetUserFilmsExecutor(this);
+            executor.getUserFilms(ownerUserId, true);
+        }
     }
 }

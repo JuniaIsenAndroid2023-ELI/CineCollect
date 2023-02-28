@@ -5,10 +5,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.cinecollect.R;
+import com.example.cinecollect.executor.AddUserFilmExecutor;
+import com.example.cinecollect.executor.UpdateUserFilmExecutor;
+import com.example.cinecollect.listeners.AddUserFilmListener;
+import com.example.cinecollect.listeners.UpdateUserFilmListener;
 import com.example.cinecollect.pojo.Film;
 
 import java.util.List;
@@ -17,12 +23,19 @@ import java.util.List;
  * {@link RecyclerView.Adapter} that can display a {@link Film}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecyclerViewAdapter.ViewHolder> {
+public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecyclerViewAdapter.ViewHolder> implements AddUserFilmListener, UpdateUserFilmListener {
+
+    private static String filmRepository = "filmRepository";
 
     private final List<Film> mValues;
 
-    public MyFilmRecyclerViewAdapter(List<Film> items) {
-        mValues = items;
+    private final String ownerUserId;
+    private final String perceiverUserId;
+
+    public MyFilmRecyclerViewAdapter(List<Film> items, String ownerUserId, String perceiverUserId) {
+        this.mValues = items;
+        this.ownerUserId = ownerUserId;
+        this.perceiverUserId = perceiverUserId;
     }
 
     @Override
@@ -33,12 +46,59 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
+        Film film = mValues.get(position);
 
-        // TODO:
-        // Assign corresponding fields of holder.
-        holder.number.setText(holder.mItem.title);
-        holder.content.setText(holder.mItem.director);
+        holder.mItem = film;
+
+        holder.title.setText(film.title);
+        holder.description.setText(film.description);
+
+        if (!ownerUserId.equals(perceiverUserId)) {
+            holder.deleteButton.setVisibility(View.GONE);
+        }
+
+        if (ownerUserId.equals(filmRepository)) {
+            holder.likeImageView.setVisibility(View.GONE);
+            holder.dislikeImageView.setVisibility(View.GONE);
+
+            holder.likeButton.setOnClickListener(view -> addUserFilm(perceiverUserId, film, true));
+            holder.dislikeButton.setOnClickListener(view -> addUserFilm(perceiverUserId, film, false));
+        }
+        else {
+            updateLikedIcon(holder, film.liked);
+            holder.likeButton.setOnClickListener(view -> updateUserFilm(holder, perceiverUserId, film, true));
+            holder.dislikeButton.setOnClickListener(view -> updateUserFilm(holder, perceiverUserId, film, false));
+        }
+    }
+
+    private void addUserFilm(String userId, Film film, Boolean liked) {
+        film.liked = liked;
+        AddUserFilmExecutor executor = new AddUserFilmExecutor(this);
+        executor.addUserFilm(userId, film.id, film);
+    }
+
+    private void updateUserFilm(ViewHolder holder, String userId, Film film, Boolean liked) {
+        film.liked = liked;
+        updateLikedIcon(holder, liked);
+        UpdateUserFilmExecutor executor = new UpdateUserFilmExecutor(this);
+        executor.updateUserFilm(userId, film.id, film);
+    }
+
+    private void updateLikedIcon(ViewHolder holder, Boolean liked) {
+        if (liked == null) {
+            holder.likeImageView.setVisibility(View.GONE);
+            holder.dislikeImageView.setVisibility(View.GONE);
+        }
+        else {
+            if (liked) {
+                holder.likeImageView.setVisibility(View.VISIBLE);
+                holder.dislikeImageView.setVisibility(View.GONE);
+            }
+            else {
+                holder.likeImageView.setVisibility(View.GONE);
+                holder.dislikeImageView.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     @Override
@@ -46,28 +106,32 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
         return mValues.size();
     }
 
+    @Override
+    public void onAddUserFilm() {}
+
+    @Override
+    public void onUpdateUserFilm() {}
+
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final TextView number;
-        public final TextView content;
         public Film mItem;
-//        TODO:
-//        Design the fragment_item.xml with these:
-//        public TextView title;
-//        public TextView releaseDate;
-//        public TextView genre;
-//        public TextView director;
-//        public TextView summary;
-//        public TextView review;
-//        public ImageView thumbnail;
-//        public ImageView score;
+        public TextView title;
+        public TextView description;
+        public ImageButton likeButton;
+        public ImageButton dislikeButton;
+        public ImageButton deleteButton;
+        public ImageView likeImageView;
+        public ImageView dislikeImageView;
+
         public ViewHolder(View binding) {
             super(binding);
 
-            // TODO:
-            // Bind views here
-            // for the time being number and content
-            number = binding.findViewById(R.id.item_number);
-            content =  binding.findViewById(R.id.content);
+            title = binding.findViewById(R.id.filmTitle);
+            description = binding.findViewById(R.id.filmDescription);
+            likeButton = binding.findViewById(R.id.filmLikeButton);
+            dislikeButton = binding.findViewById(R.id.filmDislikeButton);
+            deleteButton = binding.findViewById(R.id.filmDeleteButton);
+            likeImageView = binding.findViewById(R.id.filmLikedImageView);
+            dislikeImageView = binding.findViewById(R.id.filmDislikedImageView);
         }
 
         @Override

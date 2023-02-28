@@ -3,8 +3,10 @@ package com.example.cinecollect.pojo;
 public class CineCollectUser {
     public String username;
     public String email;
-    public Boolean emailVerified = false;
-    public Boolean hasFilms = false;
+    public Boolean emailVerified;
+    public Boolean hasFilms;
+
+    public CineCollectUser() {}
 
     public void setUsername(String username) {
         this.username = username;

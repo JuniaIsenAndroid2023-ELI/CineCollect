@@ -1,11 +1,9 @@
 package com.example.cinecollect.helpers;
 
-import android.util.Log;
-
-import com.example.cinecollect.interfaces.FirebaseDatabaseService;
+import com.example.cinecollect.services.FirebaseDatabaseService;
 import com.example.cinecollect.pojo.Film;
+import com.example.cinecollect.util.HelperExceptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.io.IOException;
@@ -14,9 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -41,12 +36,11 @@ public class FilmHelper {
 
     // TODO:
     // Uhh not the prettiest func
-    public static FilmHelper getInstance() throws FirebaseAuthInvalidUserException {
+    public static FilmHelper getInstance() {
         FirebaseUser _currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (_currentUser == null) {
-            // TODO:
-            throw new FirebaseAuthInvalidUserException("FIXHERE", "FIXHERE");
+            throw new HelperExceptions.NoCurrentUserException();
         }
 
         if (currentUser != _currentUser || filmHelper == null) {
@@ -57,32 +51,50 @@ public class FilmHelper {
         return filmHelper;
     }
 
-    public List<Film> getUserFilms(String uid) {
+    public Film getFilm(String filmId) {
+        try {
+            Response<Film> response = service.getFilm(filmId, userToken).execute();
+            if (response.isSuccessful()) {
+                return response.body();
+            }
+            else {
+                // TODO
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<Film> getUserFilms(String userId) {
+        return getUserFilms(userId, false);
+    }
+
+    public List<Film> getUserFilms(String userId, Boolean withId) {
         // TODO:
         // Fix here
-            service.getUserFilms(uid, userToken).enqueue(new Callback<Map<String, Boolean>>() {
-                @Override
-                public void onResponse(Call<Map<String, Boolean>> call, Response<Map<String, Boolean>> response) {
-
-                }
-
-                @Override
-                public void onFailure(Call<Map<String, Boolean>> call, Throwable t) {
-
-                }
-            });
-//            if (response.isSuccessful()) {
-//                return response
-//                        .body()
-//                        .keySet()
-//                        .stream()
-//                        .map(
-//                                filmId ->
-//                                Film
-//                                        .newBuilder()
-//                                        .setTitle(filmId)
-//                                        .build())
-//                        .collect(Collectors.toList());
+        try {
+            Response<Map<String, Film>> response = service.getUserFilms(userId, userToken).execute();
+            if (response.isSuccessful()) {
+                return response
+                        .body()
+                        .entrySet()
+                        .stream()
+                        .map(entry -> {
+                            Film film = entry.getValue();
+                            if (withId) {
+                                film.id = entry.getKey();
+                            }
+                            return film;
+                        })
+                        .collect(Collectors.toList());
+            }
+            else {
+                // TODO
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return new ArrayList<>();
     }
 }
