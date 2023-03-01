@@ -76,6 +76,9 @@ public class FilmHelper {
         try {
             Response<Map<String, Film>> response = service.getUserFilms(userId, userToken).execute();
             if (response.isSuccessful()) {
+                if (response.body() == null) {
+                    return new ArrayList<>();
+                }
                 return response
                         .body()
                         .entrySet()

@@ -15,18 +15,21 @@ import android.widget.Toast;
 import com.example.cinecollect.R;
 import com.example.cinecollect.UserFilmListActivity;
 import com.example.cinecollect.executor.AddUserFilmExecutor;
+import com.example.cinecollect.executor.DeleteUserFilmExecutor;
 import com.example.cinecollect.executor.UpdateUserFilmExecutor;
 import com.example.cinecollect.listeners.AddUserFilmListener;
+import com.example.cinecollect.listeners.DeleteUserFilmListener;
 import com.example.cinecollect.listeners.UpdateUserFilmListener;
 import com.example.cinecollect.pojo.Film;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Film}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecyclerViewAdapter.ViewHolder> implements AddUserFilmListener, UpdateUserFilmListener {
+public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecyclerViewAdapter.ViewHolder> implements AddUserFilmListener, UpdateUserFilmListener, DeleteUserFilmListener {
 
     private static String filmRepository = "filmRepository";
 
@@ -34,17 +37,19 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
 
     private final String ownerUserId;
     private final String perceiverUserId;
-    private final Context context;
+    private Context context;
+    private Consumer<Integer> onItemRemove;
 
-    public MyFilmRecyclerViewAdapter(List<Film> items, String ownerUserId, String perceiverUserId, Context context) {
+    public MyFilmRecyclerViewAdapter(List<Film> items, String ownerUserId, String perceiverUserId, Consumer<Integer> onItemRemove) {
         this.mValues = items;
         this.ownerUserId = ownerUserId;
         this.perceiverUserId = perceiverUserId;
-        this.context = context;
+        this.onItemRemove = onItemRemove;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        context = parent.getContext();
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_item, parent, false);
         return new ViewHolder(view);
     }
@@ -60,6 +65,9 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
 
         if (!ownerUserId.equals(perceiverUserId)) {
             holder.deleteButton.setVisibility(View.GONE);
+        }
+        else {
+            holder.deleteButton.setOnClickListener(view -> deleteUserFilm(ownerUserId, film));
         }
 
         if (ownerUserId.equals(filmRepository)) {
@@ -90,6 +98,20 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
         executor.updateUserFilm(userId, film.id, film);
     }
 
+    private void deleteUserFilm(String userId, Film film) {
+        int removeIndex = 0;
+        for (Film item : mValues) {
+            if (item.id.equals(film.id)) {
+                break;
+            }
+            removeIndex++;
+        }
+        mValues.remove(removeIndex);
+        onItemRemove.accept(removeIndex);
+        DeleteUserFilmExecutor executor = new DeleteUserFilmExecutor(this);
+        executor.deleteUserFilm(userId, film.id);
+    }
+
     private void updateLikedIcon(ViewHolder holder, Boolean liked) {
         if (liked == null) {
             holder.likeImageView.setVisibility(View.GONE);
@@ -117,6 +139,9 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
 
     @Override
     public void onUpdateUserFilm() {}
+
+    @Override
+    public void onDeleteUserFilm() {}
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public Film mItem;

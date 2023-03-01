@@ -125,4 +125,12 @@ public class UserHelper {
             e.printStackTrace();
         }
     }
+
+    public void deleteUserFilm(String userId, String filmId) {
+        try {
+            service.deleteUserFilm(userId, filmId, userToken).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

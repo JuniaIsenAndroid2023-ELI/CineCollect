@@ -99,14 +99,18 @@ public class FilmFragment extends Fragment implements GetUserFilmsListener, GetU
             } else {
                 mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(new ArrayList<>(), ownerUserId, FirebaseAuth.getInstance().getCurrentUser().getUid(), getContext()));
+            mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(new ArrayList<>(), ownerUserId, FirebaseAuth.getInstance().getCurrentUser().getUid(), this::onItemRemove));
         }
         return view;
     }
 
     @Override
     public void onGetUserFilms(List<Film> films) {
-        mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(films, ownerUserId, FirebaseAuth.getInstance().getCurrentUser().getUid(), getContext()));
+        mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(films, ownerUserId, FirebaseAuth.getInstance().getCurrentUser().getUid(), this::onItemRemove));
+    }
+
+    private void onItemRemove(Integer removedIndex) {
+        mRecyclerView.getAdapter().notifyItemRemoved(removedIndex);
     }
 
     @Override
