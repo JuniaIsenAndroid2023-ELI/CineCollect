@@ -64,10 +64,10 @@ public class FilmFragment extends Fragment implements GetUserFilmsListener, GetU
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static FilmFragment newInstance(String uid) {
+    public static FilmFragment newInstance(String userId) {
         FilmFragment fragment = new FilmFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_UID, uid);
+        args.putString(ARG_UID, userId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -99,14 +99,14 @@ public class FilmFragment extends Fragment implements GetUserFilmsListener, GetU
             } else {
                 mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(new ArrayList<>(), ownerUserId, FirebaseAuth.getInstance().getCurrentUser().getUid()));
+            mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(new ArrayList<>(), ownerUserId, FirebaseAuth.getInstance().getCurrentUser().getUid(), getContext()));
         }
         return view;
     }
 
     @Override
     public void onGetUserFilms(List<Film> films) {
-        mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(films, ownerUserId, FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        mRecyclerView.setAdapter(new MyFilmRecyclerViewAdapter(films, ownerUserId, FirebaseAuth.getInstance().getCurrentUser().getUid(), getContext()));
     }
 
     @Override

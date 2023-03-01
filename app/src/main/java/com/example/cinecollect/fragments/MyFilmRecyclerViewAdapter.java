@@ -2,6 +2,7 @@ package com.example.cinecollect.fragments;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +10,10 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.cinecollect.R;
+import com.example.cinecollect.UserFilmListActivity;
 import com.example.cinecollect.executor.AddUserFilmExecutor;
 import com.example.cinecollect.executor.UpdateUserFilmExecutor;
 import com.example.cinecollect.listeners.AddUserFilmListener;
@@ -31,11 +34,13 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
 
     private final String ownerUserId;
     private final String perceiverUserId;
+    private final Context context;
 
-    public MyFilmRecyclerViewAdapter(List<Film> items, String ownerUserId, String perceiverUserId) {
+    public MyFilmRecyclerViewAdapter(List<Film> items, String ownerUserId, String perceiverUserId, Context context) {
         this.mValues = items;
         this.ownerUserId = ownerUserId;
         this.perceiverUserId = perceiverUserId;
+        this.context = context;
     }
 
     @Override
@@ -75,6 +80,7 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
         film.liked = liked;
         AddUserFilmExecutor executor = new AddUserFilmExecutor(this);
         executor.addUserFilm(userId, film.id, film);
+        Toast.makeText(context, "Added to your list as " + (liked ? "liked" : "disliked") + "!", Toast.LENGTH_SHORT).show();
     }
 
     private void updateUserFilm(ViewHolder holder, String userId, Film film, Boolean liked) {

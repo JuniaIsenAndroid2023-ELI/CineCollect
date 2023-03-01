@@ -106,14 +106,9 @@ public class AuthenticationActivity extends AppCompatActivity implements AddUser
                             Toast.makeText(AuthenticationActivity.this, "Please verify your email", Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            Film film = new Film();
-                            film.title = "The Pursuit of Happyness";
-                            film.description = "Gotta watch it man.";
-                            AddUserFilmExecutor executor = new AddUserFilmExecutor(this);
-                            executor.addUserFilm(user.getUid(), "id1", film);
                             UserHelper.getInstance().setUserEmailVerified(user.getUid());
                             Toast.makeText(AuthenticationActivity.this, "Welcome back!", Toast.LENGTH_SHORT).show();
-                            startActivity(getIntent(user.getEmail(), user.getUid()));
+                            startActivity(getIntent(email.substring(0, email.indexOf("@")), user.getUid()));
                         }
                     } else {
                         // If sign in fails, display a message to the user.
@@ -194,7 +189,5 @@ public class AuthenticationActivity extends AppCompatActivity implements AddUser
     }
 
     @Override
-    public void onAddUserFilm() {
-
-    }
+    public void onAddUserFilm() {}
 }
