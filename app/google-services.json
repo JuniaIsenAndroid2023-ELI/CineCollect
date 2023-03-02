@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "17126877737",
+    "project_id": "cinecollect-d0d0c",
+    "storage_bucket": "cinecollect-d0d0c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:17126877737:android:e2d3efc22802258bd84a38",
+        "android_client_info": {
+          "package_name": "com.example.cinecollect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "17126877737-1emm3qc3ulve3ftobt6dhpus0u5oo2rp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjGfrutzIszYQgJ69y6pix1F8GizXK5t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "17126877737-1emm3qc3ulve3ftobt6dhpus0u5oo2rp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
