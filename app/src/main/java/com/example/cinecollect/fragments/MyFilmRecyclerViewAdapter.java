@@ -65,6 +65,8 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
 
         if (!ownerUserId.equals(perceiverUserId)) {
             holder.deleteButton.setVisibility(View.GONE);
+            holder.likeButton.setVisibility(View.GONE);
+            holder.dislikeButton.setVisibility(View.GONE);
         }
         else {
             holder.deleteButton.setOnClickListener(view -> deleteUserFilm(ownerUserId, film));
@@ -79,8 +81,10 @@ public class MyFilmRecyclerViewAdapter extends RecyclerView.Adapter<MyFilmRecycl
         }
         else {
             updateLikedIcon(holder, film.liked);
-            holder.likeButton.setOnClickListener(view -> updateUserFilm(holder, perceiverUserId, film, true));
-            holder.dislikeButton.setOnClickListener(view -> updateUserFilm(holder, perceiverUserId, film, false));
+            if (ownerUserId.equals(perceiverUserId)) {
+                holder.likeButton.setOnClickListener(view -> updateUserFilm(holder, perceiverUserId, film, true));
+                holder.dislikeButton.setOnClickListener(view -> updateUserFilm(holder, perceiverUserId, film, false));
+            }
         }
     }
 
