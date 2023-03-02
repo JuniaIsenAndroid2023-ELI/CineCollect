@@ -31,6 +31,9 @@
         <activity
             android:name=".UserFilmListActivity"
             android:exported="true" />
+        <activity
+            android:name=".UserSearchActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

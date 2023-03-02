@@ -54,12 +54,18 @@ public class UserFilmListActivity extends AppCompatActivity {
             }
         }
         else if (itemId == R.id.menuFilms) {
-            startActivity(getIntent("All Films", "filmRepository"));
+            if (!userId.equals("filmRepository")) {
+                startActivity(getIntent("All Films", "filmRepository"));
+            }
         }
         else if (itemId == R.id.menuLogout) {
             FirebaseAuth.getInstance().signOut();
             startActivity(new Intent(this, MainActivity.class));
         }
+        else if (itemId == R.id.menuUserSearch) {
+            startActivity(new Intent(this, UserSearchActivity.class));
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

@@ -30,6 +30,13 @@ public interface FirebaseDatabaseService {
             @Body CineCollectUser user
     );
 
+    @GET("user.json")
+    Call<Map<String, CineCollectUser>> getUser(
+            @Query("orderBy") String orderBy,
+            @Query("equalTo") String equalTo,
+            @Query("auth") String token
+    );
+
     @PATCH("user/{userId}.json")
     Call<CineCollectUser> updateUser(
             @Path("userId") String userId,

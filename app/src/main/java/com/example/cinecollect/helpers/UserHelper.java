@@ -9,6 +9,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -59,6 +63,21 @@ public class UserHelper {
                 System.out.println("failure");
             }
         });
+    }
+
+    public Set<Map.Entry<String, CineCollectUser>> getUser(String username) {
+        try {
+            Response<Map<String, CineCollectUser>> response = service.getUser("\"username\"", "\"" + username + "\"", userToken).execute();
+            if (response.isSuccessful()) {
+                return response.body().entrySet();
+            }
+            else {
+                // TODO
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private void updateUser(String userId, CineCollectUser user) {

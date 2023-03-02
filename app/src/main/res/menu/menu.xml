@@ -8,6 +8,9 @@
         android:id="@+id/menuFilms"
         android:title="Films" />
     <item
+        android:id="@+id/menuUserSearch"
+        android:title="Search User" />
+    <item
         android:id="@+id/menuLogout"
         android:title="Logout" />
 </menu>
